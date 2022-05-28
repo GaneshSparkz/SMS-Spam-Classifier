@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+    <title>SMS Spam Classifier</title>
+</head>
+<body>
+    <div class="container-fluid">
+        <h1 class="text-center py-4 bg-primary bg-opacity-25 shadow"><i class="text-success bi bi-shield-check"></i> SMS Spam
+            Classifier <i class="text-danger bi bi-exclamation-triangle"></i></h1>
+        <h4 class="text-center mt-5">Enter the SMS text below</h4>
+        <div class="row justify-content-center my-3">
+            <div class="col-xs-8 col-md-6">
+                <textarea class="form-control" name="msg" id="message" rows="5"></textarea>
+            </div>
+        </div>
+        <div class="text-center"><button id="check" class="btn btn-primary">Check</button></div>
+        <div class="row justify-content-center my-3">
+            <div class="col-xs-8 col-md-4">
+                <div id="result-box" class="alert text-center">
+                    <h4 id="result-title" class="alert-heading"></h4>
+                    <p id="result-text"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossorigin="anonymous"></script>
+    <script>
+        $(function () {
+            $('#check').click(function () {
+                $.ajax({
+                    url: '/predict',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({messages: [ {sender: 'dummy', message: $('#message').val()} ]}),
+                    success: function (response) {
+                        if (response.messages[0].is_spam) {
+                            $('#result-box').removeClass('alert-success').addClass('alert-danger');
+                            $('#result-title').html('<i class="bi bi-exclamation-triangle"></i> SPAM <i class="bi bi-exclamation-triangle"></i>');
+                            $('#result-text').html('Beware! This SMS is classified as SPAM!');
+                        }
+                        else {
+                            $('#result-box').removeClass('alert-danger').addClass('alert-success');
+                            $('#result-title').html('<i class="bi bi-shield-check"></i> SAFE <i class="bi bi-shield-check"></i>');
+                            $('#result-text').html('Don\'t worry! This SMS seems to be SAFE!');
+                        }
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
